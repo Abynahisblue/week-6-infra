@@ -315,7 +315,7 @@ Resources:
     Type: AWS::SSM::Parameter
     Properties:
       Name: !Sub '/${ProjectName}/${EnvironmentName}/db/password'
-      Type: SecureString
+      Type: String
       Value: 'TempPassword123!'
       Description: 'Database password'
 
