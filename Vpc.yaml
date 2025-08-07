@@ -20,7 +20,7 @@ Parameters:
   AvailabilityZones:
     Description: 'Comma delimited list of AZs to use'
     Type: 'List<AWS::EC2::AvailabilityZone::Name>'
-    Default: 'us-east-1a,us-east-1b,us-east-1c'
+    Default: 'eu-central-1a,eu-central-1b,eu-central-1c'
 
   PrivateSubnetCidrs:
     Description: 'Comma delimited list of CIDRs for private subnets (one per AZ)'
