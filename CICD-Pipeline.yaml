@@ -1,0 +1,222 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'CI/CD Pipeline using ECR Image and S3 Deployment with CodeDeploy'
+
+Parameters:
+  ProjectName:
+    Type: String
+    Default: 'productsapp'
+    Description: 'Name of the project for resource naming'
+
+  EnvironmentName:
+    Type: String
+    Default: 'prod'
+    Description: 'Environment name'
+
+  DeploymentBucket:
+    Type: String
+    Description: 'S3 bucket containing deployment artifacts'
+    Default: 'your-deployment-bucket'
+
+  DeploymentKey:
+    Type: String
+    Description: 'S3 key for deployment zip file'
+    Default: 'deployment.zip'
+
+  ECRRepositoryName:
+    Type: String
+    Description: 'Name of existing ECR repository'
+    Default: 'productsapp-prod'
+
+Resources:
+
+  # CodeDeploy Application
+  CodeDeployApplication:
+    Type: AWS::CodeDeploy::Application
+    Properties:
+      ApplicationName: !Sub '${ProjectName}-${EnvironmentName}-app'
+      ComputePlatform: ECS
+
+  # CodeDeploy Deployment Group
+  CodeDeployDeploymentGroup:
+    Type: AWS::CodeDeploy::DeploymentGroup
+    Properties:
+      ApplicationName: !Ref CodeDeployApplication
+      DeploymentGroupName: !Sub '${ProjectName}-${EnvironmentName}-dg'
+      ServiceRoleArn: !GetAtt CodeDeployServiceRole.Arn
+      DeploymentConfigName: CodeDeployDefault.ECSAllAtOnceBlueGreen
+      BlueGreenDeploymentConfiguration:
+        TerminateBlueInstancesOnDeploymentSuccess:
+          Action: TERMINATE
+          TerminationWaitTimeInMinutes: 5
+        DeploymentReadyOption:
+          ActionOnTimeout: CONTINUE_DEPLOYMENT
+        GreenFleetProvisioningOption:
+          Action: COPY_AUTO_SCALING_GROUP
+      ECSServices:
+        - ServiceName: !Sub '${ProjectName}-${EnvironmentName}-service'
+          ClusterName: !Sub '${ProjectName}-${EnvironmentName}-cluster'
+      LoadBalancerInfo:
+        TargetGroupInfoList:
+          - Name: !Sub '${ProjectName}-${EnvironmentName}-tg'
+
+  # CodeDeploy Service Role
+  CodeDeployServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codedeploy.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AWSCodeDeployRoleForECS
+      Policies:
+        - PolicyName: ECSCodeDeployPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ecs:*
+                  - elasticloadbalancing:*
+                  - iam:PassRole
+                Resource: '*'
+
+  # CodePipeline Service Role
+  CodePipelineServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codepipeline.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: CodePipelinePolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetBucketVersioning
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                  - s3:PutObject
+                Resource:
+                  - !Sub '${CodePipelineArtifactStore}'
+                  - !Sub '${CodePipelineArtifactStore}/*'
+                  - !Sub 'arn:aws:s3:::${DeploymentBucket}'
+                  - !Sub 'arn:aws:s3:::${DeploymentBucket}/*'
+              - Effect: Allow
+                Action:
+                  - codedeploy:CreateDeployment
+                  - codedeploy:GetApplication
+                  - codedeploy:GetApplicationRevision
+                  - codedeploy:GetDeployment
+                  - codedeploy:GetDeploymentConfig
+                  - codedeploy:RegisterApplicationRevision
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - ecr:DescribeImages
+                  - ecr:BatchGetImage
+                  - ecr:GetDownloadUrlForLayer
+                Resource: !Sub 'arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/${ECRRepositoryName}'
+
+  # S3 Bucket for CodePipeline Artifacts
+  CodePipelineArtifactStore:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub '${ProjectName}-${EnvironmentName}-pipeline-artifacts-${AWS::AccountId}'
+      VersioningConfiguration:
+        Status: Enabled
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  # CodePipeline
+  CodePipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      Name: !Sub '${ProjectName}-${EnvironmentName}-pipeline'
+      RoleArn: !GetAtt CodePipelineServiceRole.Arn
+      ArtifactStore:
+        Type: S3
+        Location: !Ref CodePipelineArtifactStore
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: ECRSource
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Provider: ECR
+                Version: '1'
+              Configuration:
+                RepositoryName: !Ref ECRRepositoryName
+                ImageTag: latest
+              OutputArtifacts:
+                - Name: ECROutput
+            - Name: S3Source
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Provider: S3
+                Version: '1'
+              Configuration:
+                S3Bucket: !Ref DeploymentBucket
+                S3ObjectKey: !Ref DeploymentKey
+              OutputArtifacts:
+                - Name: S3Output
+        - Name: Deploy
+          Actions:
+            - Name: DeployAction
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CodeDeployToECS
+                Version: '1'
+              Configuration:
+                ApplicationName: !Ref CodeDeployApplication
+                DeploymentGroupName: !Ref CodeDeployDeploymentGroup
+                TaskDefinitionTemplateArtifact: DeployArtifact
+                TaskDefinitionTemplatePath: taskdef.json
+                AppSpecTemplateArtifact: DeployArtifact
+                AppSpecTemplatePath: appspec.yaml
+                Image1ContainerName: productsapp-prod
+                Image1ArtifactName: ImageArtifact
+              InputArtifacts:
+                - Name: ImageArtifact
+                - Name: DeployArtifact
+              RunOrder: 1
+
+Outputs:
+  ECRRepositoryURI:
+    Description: 'ECR Repository URI'
+    Value: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ECRRepositoryName}'
+    Export:
+      Name: !Sub '${ProjectName}-${EnvironmentName}-ECRRepositoryURI'
+
+  ECRRepositoryName:
+    Description: 'ECR Repository Name'
+    Value: !Ref ECRRepositoryName
+    Export:
+      Name: !Sub '${ProjectName}-${EnvironmentName}-ECRRepositoryName'
+
+  CodeDeployApplicationName:
+    Description: 'CodeDeploy Application Name'
+    Value: !Ref CodeDeployApplication
+    Export:
+      Name: !Sub '${ProjectName}-${EnvironmentName}-CodeDeployApp'
+
+  CodePipelineName:
+    Description: 'CodePipeline Name'
+    Value: !Ref CodePipeline
+    Export:
+      Name: !Sub '${ProjectName}-${EnvironmentName}-CodePipelineName'ame}-GitHubConnectionArn'

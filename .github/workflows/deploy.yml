@@ -1,0 +1,157 @@
+name: CloudFormation Deployment
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '**/*.yaml'
+      - '**/*.yml'
+  workflow_dispatch:
+
+env:
+  AWS_REGION: eu-central-1
+  PROJECT_NAME: productsapp
+  ENVIRONMENT: prod
+  ECR_REPOSITORY_NAME: productsapp-prod # Default ECR repo name
+  IMAGE_URI: 314146322404.dkr.ecr.eu-central-1.amazonaws.com/productsapp-prod:latest # Default Image URI
+  DEPLOYMENT_BUCKET: your-deployment-bucket # Default deployment bucket
+  DEPLOYMENT_KEY: deployment.zip # Default deployment key
+
+jobs:
+  validate-templates:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE_ARN }}
+
+      - name: Validate CloudFormation templates
+        run: |
+          find . -name "*.yaml" -o -name "*.yml" | grep -E "\.(yaml|yml)$" | while read template; do
+            if [[ "$template" == *".github/workflows"* ]]; then
+              continue
+            fi
+            echo "Validating $template"
+            aws cloudformation validate-template --template-body file://$template || exit 1
+          done
+
+  deploy-vpc:
+    needs: validate-templates
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE_ARN }}
+
+      - name: Deploy VPC Stack
+        run: |
+          aws cloudformation deploy \
+            --template-file Vpc.yaml \
+            --stack-name ${{ env.PROJECT_NAME }}-${{ env.ENVIRONMENT }}-vpc \
+            --parameter-overrides \
+                ProjectName=${{ env.PROJECT_NAME }} \
+                EnvironmentName=${{ env.ENVIRONMENT }} \
+            --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
+            --no-fail-on-empty-changeset
+
+          aws cloudformation wait stack-create-complete \
+            --stack-name ${{ env.PROJECT_NAME }}-${{ env.ENVIRONMENT }}-vpc || {
+            echo "VPC deployment failed!"
+            aws cloudformation describe-stack-events \
+              --stack-name ${{ env.PROJECT_NAME }}-${{ env.ENVIRONMENT }}-vpc \
+              --query 'StackEvents[?ResourceStatus==`CREATE_FAILED`].[ResourceType, ResourceStatusReason]' \
+              --output table
+            exit 1
+          }
+
+  deploy-ecs:
+    needs: deploy-vpc
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE_ARN }}
+
+      - name: Deploy ECS Infrastructure Stack
+        run: |
+          aws cloudformation deploy \
+            --template-file ECS-Infrastructure.yaml \
+            --stack-name ${{ env.PROJECT_NAME }}-${{ env.ENVIRONMENT }}-ecs \
+            --parameter-overrides \
+                ProjectName=${{ env.PROJECT_NAME }} \
+                EnvironmentName=${{ env.ENVIRONMENT }} \
+                ImageUri=${{ env.IMAGE_URI }} \
+            --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
+            --no-fail-on-empty-changeset
+
+          aws cloudformation wait stack-create-complete \
+            --stack-name ${{ env.PROJECT_NAME }}-${{ env.ENVIRONMENT }}-ecs || {
+            echo "ECS deployment failed!"
+            aws cloudformation describe-stack-events \
+              --stack-name ${{ env.PROJECT_NAME }}-${{ env.ENVIRONMENT }}-ecs \
+              --query 'StackEvents[?ResourceStatus==`CREATE_FAILED`].[ResourceType, ResourceStatusReason]' \
+              --output table
+            exit 1
+          }
+
+  deploy-pipeline:
+    needs: deploy-ecs
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE_ARN }}
+
+      - name: Deploy Pipeline Stack
+        run: |
+          aws cloudformation deploy \
+            --template-file CICD-Pipeline.yaml \
+            --stack-name ${{ env.PROJECT_NAME }}-${{ env.ENVIRONMENT }}-pipeline \
+            --parameter-overrides \
+                ProjectName=${{ env.PROJECT_NAME }} \
+                EnvironmentName=${{ env.ENVIRONMENT }} \
+                ECRRepositoryName=${{ env.ECR_REPOSITORY_NAME }} \
+                DeploymentBucket=${{ env.DEPLOYMENT_BUCKET }} \
+                DeploymentKey=${{ env.DEPLOYMENT_KEY }} \
+            --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
+            --no-fail-on-empty-changeset
+
+          aws cloudformation wait stack-create-complete \
+            --stack-name ${{ env.PROJECT_NAME }}-${{ env.ENVIRONMENT }}-pipeline || {
+            echo "Pipeline deployment failed!"
+            aws cloudformation describe-stack-events \
+              --stack-name ${{ env.PROJECT_NAME }}-${{ env.ENVIRONMENT }}-pipeline \
+              --query 'StackEvents[?ResourceStatus==`CREATE_FAILED`].[ResourceType, ResourceStatusReason]' \
+              --output table
+            exit 1
+          }
