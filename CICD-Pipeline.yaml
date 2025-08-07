@@ -219,4 +219,4 @@ Outputs:
     Description: 'CodePipeline Name'
     Value: !Ref CodePipeline
     Export:
-      Name: !Sub '${ProjectName}-${EnvironmentName}-CodePipelineName'ame}-GitHubConnectionArn'
+      Name: !Sub '${ProjectName}-${EnvironmentName}-CodePipelineName'
