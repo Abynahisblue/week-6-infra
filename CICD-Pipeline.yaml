@@ -53,15 +53,19 @@ Resources:
           TerminationWaitTimeInMinutes: 5
         DeploymentReadyOption:
           ActionOnTimeout: CONTINUE_DEPLOYMENT
+        TargetGroupPairInfoList:
+          - ProdTrafficRoute:
+              ListenerArns:
+                - Fn::ImportValue: !Sub '${ProjectName}-${EnvironmentName}-ALBListenerArn'
+            TargetGroups:
+              - Name: !Ref TargetGroup1Name
+              - Name: !Ref TargetGroup2Name
         GreenFleetProvisioningOption:
           Action: DISCOVER_EXISTING
       ECSServices:
         - ServiceName: !Sub '${ProjectName}-${EnvironmentName}-service'
           ClusterName: !Sub '${ProjectName}-${EnvironmentName}-cluster'
-      LoadBalancerInfo:
-        TargetGroupInfoList:
-          - Name: !Sub '${ProjectName}-${EnvironmentName}-tg'
-
+      
   # CodeDeploy Service Role
   CodeDeployServiceRole:
     Type: AWS::IAM::Role
