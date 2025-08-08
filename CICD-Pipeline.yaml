@@ -107,8 +107,8 @@ Resources:
                   - s3:GetObjectVersion
                   - s3:PutObject
                 Resource:
-                  - !Sub '${CodePipelineArtifactStore}'
-                  - !Sub '${CodePipelineArtifactStore}/*'
+                  - !Sub 'arn:aws:s3:::${CodePipelineArtifactStore}'
+                  - !Sub 'arn:aws:s3:::${CodePipelineArtifactStore}/*'
                   - !Sub 'arn:aws:s3:::${DeploymentBucket}'
                   - !Sub 'arn:aws:s3:::${DeploymentBucket}/*'
               - Effect: Allow
