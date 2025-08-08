@@ -58,8 +58,10 @@ Resources:
               ListenerArns:
                 - Fn::ImportValue: !Sub '${ProjectName}-${EnvironmentName}-ALBListenerArn'
             TargetGroups:
-              - Name: !Ref TargetGroup1Name
-              - Name: !Ref TargetGroup2Name
+              - Name: 
+                  Fn::ImportValue: !Sub '${ProjectName}-${EnvironmentName}-TargetGroup1Name'
+              - Name: 
+                  Fn::ImportValue: !Sub '${ProjectName}-${EnvironmentName}-TargetGroup2Name'
         GreenFleetProvisioningOption:
           Action: DISCOVER_EXISTING
       ECSServices:
