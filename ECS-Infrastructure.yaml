@@ -263,4 +263,14 @@ Outputs:
     Export:
       Name: !Sub '${ProjectName}-${EnvironmentName}-ALBListenerArn'
 
-   
+  TargetGroup1Name:
+    Description: 'Target Group 1 Name (Blue)'
+    Value: !Ref TargetGroup
+    Export:
+      Name: !Sub '${ProjectName}-${EnvironmentName}-TargetGroup1Name'
+
+  TargetGroup2Name:
+    Description: 'Target Group 2 Name (Green)'
+    Value: !Ref TargetGroup2
+    Export:
+      Name: !Sub '${ProjectName}-${EnvironmentName}-TargetGroup2Name'
