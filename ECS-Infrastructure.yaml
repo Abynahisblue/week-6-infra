@@ -256,3 +256,21 @@ Outputs:
       - 'http://${ALBDNSName}'
       - ALBDNSName: 
           Fn::ImportValue: !Sub '${ProjectName}-${EnvironmentName}-ALBDNSName'
+
+  ALBListenerArn:
+    Description: 'The ARN of the ALB Listener'
+    Value: !Ref ALBListener
+    Export:
+      Name: !Sub '${ProjectName}-${EnvironmentName}-ALBListenerArn'
+
+    TargetGroup1Arn:
+      Description: 'The ARN of the Blue Target Group'
+      Value: !Ref TargetGroup
+      Export:
+        Name: !Sub '${ProjectName}-${EnvironmentName}-TargetGroup1Arn'
+
+    TargetGroup2Arn:
+      Description: 'The ARN of the Green Target Group'
+      Value: !Ref TargetGroup2
+      Export:
+        Name: !Sub '${ProjectName}-${EnvironmentName}-TargetGroup2Arn'
