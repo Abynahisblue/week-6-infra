@@ -30,16 +30,9 @@ Resources:
         - CapacityProvider: FARGATE
           Weight: 1
 
-  # CloudWatch Log Group
-  LogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      RetentionInDays: 7
-
   # ECS Task Definition
   TaskDefinition:
     Type: AWS::ECS::TaskDefinition
-    DependsOn: LogGroup
     Properties:
       Family: !Sub '${ProjectName}-${EnvironmentName}-task'
       NetworkMode: awsvpc
@@ -58,9 +51,10 @@ Resources:
           LogConfiguration:
             LogDriver: awslogs
             Options:
-              awslogs-group: !Ref LogGroup
+              awslogs-group: !Sub '/ecs/${ProjectName}-${EnvironmentName}'
               awslogs-region: !Ref AWS::Region
               awslogs-stream-prefix: ecs
+              awslogs-create-group: 'true'
           Environment:
             - Name: DB_HOST
               Value: 
