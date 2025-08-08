@@ -332,8 +332,8 @@ Resources:
       StorageEncrypted: true
       MultiAZ: true
       DBName: 'imageapp'
-      MasterUsername: !Ref DBUsername
-      MasterUserPassword: !Ref DBPassword
+      MasterUsername: 'postgres'
+      MasterUserPassword: 'TempPassword123!'
       VPCSecurityGroups:
         - !Ref RDSSecurityGroup
       DBSubnetGroupName: !Ref DBSubnetGroup
