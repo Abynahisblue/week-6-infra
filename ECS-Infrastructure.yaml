@@ -15,7 +15,7 @@ Parameters:
   ImageUri:
     Type: String
     Description: 'ECR Image URI for the application'
-    Default: '123456789012.dkr.ecr.us-east-1.amazonaws.com/productsapp:latest'
+    Default: '314146322404.dkr.ecr.eu-central-1.amazonaws.com/productsapp-prod:latest'
 
 Resources:
   # ECS Cluster
@@ -95,7 +95,7 @@ Resources:
           AssignPublicIp: DISABLED
       LoadBalancers:
         - ContainerName: !Sub '${ProjectName}-container'
-          ContainerPort: 8080
+          ContainerPort: 8082
           TargetGroupArn: !Ref TargetGroup
       DeploymentController:
         Type: CODE_DEPLOY
