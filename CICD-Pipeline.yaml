@@ -54,7 +54,7 @@ Resources:
         DeploymentReadyOption:
           ActionOnTimeout: CONTINUE_DEPLOYMENT
         GreenFleetProvisioningOption:
-          Action: COPY_AUTO_SCALING_GROUP
+          Action: DISCOVER_EXISTING
       ECSServices:
         - ServiceName: !Sub '${ProjectName}-${EnvironmentName}-service'
           ClusterName: !Sub '${ProjectName}-${EnvironmentName}-cluster'

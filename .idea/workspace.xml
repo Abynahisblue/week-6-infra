@@ -16,6 +16,10 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="KubernetesApiPersistence"><![CDATA[{}]]></component>
+  <component name="KubernetesApiProvider"><![CDATA[{
+  "isMigrated": true
+}]]></component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 3
 }</component>
@@ -87,7 +91,7 @@
       <workItem from="1754572052338" duration="7592000" />
       <workItem from="1754662138658" duration="17000" />
       <workItem from="1754662169401" duration="203000" />
-      <workItem from="1754662396261" duration="1118000" />
+      <workItem from="1754662396261" duration="2125000" />
     </task>
     <servers />
   </component>
