@@ -44,6 +44,9 @@ Resources:
       DeploymentGroupName: !Sub '${ProjectName}-${EnvironmentName}-dg'
       ServiceRoleArn: !GetAtt CodeDeployServiceRole.Arn
       DeploymentConfigName: CodeDeployDefault.ECSAllAtOnceBlueGreen
+      DeploymentStyle:
+        DeploymentType: BLUE_GREEN
+        DeploymentOption: WITH_TRAFFIC_CONTROL
       BlueGreenDeploymentConfiguration:
         TerminateBlueInstancesOnDeploymentSuccess:
           Action: TERMINATE
