@@ -326,7 +326,7 @@ Resources:
       DBInstanceIdentifier: !Sub '${ProjectName}-${EnvironmentName}-postgres'
       DBInstanceClass: db.t3.micro
       Engine: postgres
-      EngineVersion: '13.13'
+      EngineVersion: '15.4'
       AllocatedStorage: 20
       StorageType: gp2
       StorageEncrypted: true
