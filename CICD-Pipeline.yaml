@@ -44,29 +44,20 @@ Resources:
       DeploymentGroupName: !Sub '${ProjectName}-${EnvironmentName}-dg'
       ServiceRoleArn: !GetAtt CodeDeployServiceRole.Arn
       DeploymentConfigName: CodeDeployDefault.ECSAllAtOnceBlueGreen
-      DeploymentStyle:
-        DeploymentType: BLUE_GREEN
-        DeploymentOption: WITH_TRAFFIC_CONTROL
       BlueGreenDeploymentConfiguration:
         TerminateBlueInstancesOnDeploymentSuccess:
           Action: TERMINATE
           TerminationWaitTimeInMinutes: 5
         DeploymentReadyOption:
           ActionOnTimeout: CONTINUE_DEPLOYMENT
-        TargetGroupPairInfoList:
-          - ProdTrafficRoute:
-              ListenerArns:
-                - Fn::ImportValue: !Sub '${ProjectName}-${EnvironmentName}-ALBListenerArn'
-            TargetGroups:
-              - Name: 
-                  Fn::ImportValue: !Sub '${ProjectName}-${EnvironmentName}-TargetGroup1Name'
-              - Name: 
-                  Fn::ImportValue: !Sub '${ProjectName}-${EnvironmentName}-TargetGroup2Name'
         GreenFleetProvisioningOption:
-          Action: DISCOVER_EXISTING
+          Action: COPY_AUTO_SCALING_GROUP
       ECSServices:
         - ServiceName: !Sub '${ProjectName}-${EnvironmentName}-service'
           ClusterName: !Sub '${ProjectName}-${EnvironmentName}-cluster'
+      LoadBalancerInfo:
+        TargetGroupInfoList:
+          - Name: !Sub '${ProjectName}-${EnvironmentName}-tg'
       
   # CodeDeploy Service Role
   CodeDeployServiceRole:
