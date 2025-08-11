@@ -56,17 +56,17 @@ Resources:
           ActionOnTimeout: CONTINUE_DEPLOYMENT
         GreenFleetProvisioningOption:
           Action: DISCOVER_EXISTING 
-      ECSServices:
-        - ServiceName: !Sub '${ProjectName}-${EnvironmentName}-service'
-          ClusterName: !Sub '${ProjectName}-${EnvironmentName}-cluster'
       LoadBalancerInfo:
-        TargetGroupPairInfo:
+        TargetGroupPairInfoList:
           ProdTrafficRoute:
             ListenerArns:
               - Fn::ImportValue: !Sub '${ProjectName}-${EnvironmentName}-ALBListenerArn'
           TargetGroups:
             - Name: !Sub '${ProjectName}-${EnvironmentName}-TargetGroup1Name'
             - Name: !Sub '${ProjectName}-${EnvironmentName}-TargetGroup2Name'
+      ECSServices:
+        - ServiceName: !Sub '${ProjectName}-${EnvironmentName}-service'
+          ClusterName: !Sub '${ProjectName}-${EnvironmentName}-cluster'
       
   # CodeDeploy Service Role
   CodeDeployServiceRole:
