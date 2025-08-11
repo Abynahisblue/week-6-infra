@@ -53,9 +53,7 @@ Resources:
           Action: TERMINATE
           TerminationWaitTimeInMinutes: 5
         DeploymentReadyOption:
-          ActionOnTimeout: CONTINUE_DEPLOYMENT
-        GreenFleetProvisioningOption:
-          Action: DISCOVER_EXISTING 
+          ActionOnTimeout: CONTINUE_DEPLOYMENT 
       LoadBalancerInfo:
         TargetGroupPairInfoList:
           - ProdTrafficRoute:
