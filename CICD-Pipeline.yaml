@@ -194,15 +194,15 @@ Resources:
               Configuration:
                 ApplicationName: !Ref CodeDeployApplication
                 DeploymentGroupName: !Ref CodeDeployDeploymentGroup
-                TaskDefinitionTemplateArtifact: DeployArtifact
+                TaskDefinitionTemplateArtifact: S3Output
                 TaskDefinitionTemplatePath: taskdef.json
-                AppSpecTemplateArtifact: DeployArtifact
+                AppSpecTemplateArtifact: S3Output
                 AppSpecTemplatePath: appspec.yaml
                 Image1ContainerName: productsapp-prod
-                Image1ArtifactName: ImageArtifact
+                Image1ArtifactName: ECROutput
               InputArtifacts:
-                - Name: ImageArtifact
-                - Name: DeployArtifact
+                - Name: ECROutput
+                - Name: S3Output
               RunOrder: 1
 
 Outputs:
