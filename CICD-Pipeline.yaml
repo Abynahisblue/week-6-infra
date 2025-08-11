@@ -30,12 +30,14 @@ Parameters:
   BlueTargetGroupName:
     Type: String
     Description: 'Name of the Blue Target Group'
-    GreenTargetGroupName:
-      Type: String
-      Description: 'Name of the Green Target Group'
-    ProdListenerArn:
-      Type: String
-      Description: 'ARN of the production listener'
+
+  GreenTargetGroupName:
+    Type: String
+    Description: 'Name of the Green Target Group'
+
+  ProdListenerArn:
+    Type: String
+    Description: 'ARN of the production listener'
 
 Resources:
 
