@@ -44,7 +44,7 @@ Resources:
       ApplicationName: !Ref CodeDeployApplication
       DeploymentGroupName: !Sub '${ProjectName}-${EnvironmentName}-dg'
       ServiceRoleArn: !GetAtt CodeDeployServiceRole.Arn
-      DeploymentConfigName: CodeDeployDefault.ECSAllAtOnceBlueGreen
+      DeploymentConfigName: CodeDeployDefault.ECSAllAtOnce
       DeploymentStyle:
         DeploymentType: BLUE_GREEN
         DeploymentOption: WITH_TRAFFIC_CONTROL
