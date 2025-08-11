@@ -56,14 +56,18 @@ Resources:
         DeploymentReadyOption:
           ActionOnTimeout: CONTINUE_DEPLOYMENT
         GreenFleetProvisioningOption:
-          Action: DISCOVER_EXISTING
+          Action: DISCOVER_EXISTING 
       ECSServices:
         - ServiceName: !Sub '${ProjectName}-${EnvironmentName}-service'
           ClusterName: !Sub '${ProjectName}-${EnvironmentName}-cluster'
       LoadBalancerInfo:
-        ContainerName: !Sub '${ProjectName}-container'
-        ContainerPort: 8082
-
+        TargetGroupPairInfo:
+          ProdTrafficRoute:
+            ListenerArns:
+              - !Ref MyProdListener
+          TargetGroups:
+            - Name: !Ref MyBlueTargetGroup
+            - Name: !Ref MyGreenTargetGroup
       
   # CodeDeploy Service Role
   CodeDeployServiceRole:
