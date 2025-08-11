@@ -28,7 +28,6 @@ Parameters:
     Default: 'productsapp-prod'
 
 
-
 Resources:
 
   # CodeDeploy Application
@@ -64,10 +63,10 @@ Resources:
         TargetGroupPairInfo:
           ProdTrafficRoute:
             ListenerArns:
-              - !Ref MyProdListener
+              - Fn::ImportValue: !Sub '${ProjectName}-${EnvironmentName}-ALBListenerArn'
           TargetGroups:
-            - Name: !Ref MyBlueTargetGroup
-            - Name: !Ref MyGreenTargetGroup
+            - Name: !Sub '${ProjectName}-${EnvironmentName}-TargetGroup1Name'
+            - Name: !Sub '${ProjectName}-${EnvironmentName}-TargetGroup2Name'
       
   # CodeDeploy Service Role
   CodeDeployServiceRole:
