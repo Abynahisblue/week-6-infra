@@ -27,6 +27,16 @@ Parameters:
     Description: 'Name of existing ECR repository'
     Default: 'productsapp-prod'
 
+  BlueTargetGroupName:
+    Type: String
+    Description: 'Name of the Blue Target Group'
+    GreenTargetGroupName:
+      Type: String
+      Description: 'Name of the Green Target Group'
+    ProdListenerArn:
+      Type: String
+      Description: 'ARN of the production listener'
+
 Resources:
 
   # CodeDeploy Application
@@ -58,9 +68,7 @@ Resources:
       ECSServices:
         - ServiceName: !Sub '${ProjectName}-${EnvironmentName}-service'
           ClusterName: !Sub '${ProjectName}-${EnvironmentName}-cluster'
-      LoadBalancerInfo:
-        TargetGroupInfoList:
-          - Name: !Sub '${ProjectName}-${EnvironmentName}-tg'
+
       
   # CodeDeploy Service Role
   CodeDeployServiceRole:
