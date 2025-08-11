@@ -61,11 +61,8 @@ Resources:
         - ServiceName: !Sub '${ProjectName}-${EnvironmentName}-service'
           ClusterName: !Sub '${ProjectName}-${EnvironmentName}-cluster'
       LoadBalancerInfo:
-        TargetGroupInfoList:
-          - Name: 
-              Fn::ImportValue: !Sub '${ProjectName}-${EnvironmentName}-TargetGroup1Name'
-          - Name: 
-              Fn::ImportValue: !Sub '${ProjectName}-${EnvironmentName}-TargetGroup2Name'
+        ContainerName: !Sub '${ProjectName}-container'
+        ContainerPort: 8082
 
       
   # CodeDeploy Service Role
