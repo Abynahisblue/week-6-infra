@@ -86,7 +86,7 @@ Resources:
     Properties:
       ServiceName: !Sub '${ProjectName}-${EnvironmentName}-service'
       Cluster: !Ref ECSCluster
-      TaskDefinition: !Ref TaskDefinition
+#      TaskDefinition: !Ref TaskDefinition
       LaunchType: FARGATE
       DesiredCount: 2
       NetworkConfiguration:
