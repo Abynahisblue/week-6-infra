@@ -63,7 +63,7 @@ Resources:
               Value: 
                 Fn::ImportValue: !Sub '${ProjectName}-${EnvironmentName}-DatabasePort'
             - Name: DB_NAME
-              Value: 'imageapp'
+              Value: 'product-management'
             - Name: S3_BUCKET
               Value: 
                 Fn::ImportValue: !Sub '${ProjectName}-${EnvironmentName}-ImageBucketName'
@@ -74,6 +74,10 @@ Resources:
               ValueFrom: !Sub '/${ProjectName}/${EnvironmentName}/db/username'
             - Name: DB_PASSWORD
               ValueFrom: !Sub '/${ProjectName}/${EnvironmentName}/db/password'
+            - Name: AWS_ACCESS_KEY_ID
+              ValueFrom: !Sub '/${ProjectName}/${EnvironmentName}/aws/access-key-id'
+            - Name: AWS_SECRET_ACCESS_KEY
+              ValueFrom: !Sub '/${ProjectName}/${EnvironmentName}/aws/secret-access-key'
 
   # ECS Service
   ECSService:
@@ -84,7 +88,7 @@ Resources:
       Cluster: !Ref ECSCluster
       TaskDefinition: !Ref TaskDefinition
       LaunchType: FARGATE
-      DesiredCount: 0
+      DesiredCount: 2
       NetworkConfiguration:
         AwsvpcConfiguration:
           SecurityGroups:
@@ -193,7 +197,9 @@ Resources:
                 Action:
                   - ssm:GetParameters
                   - ssm:GetParameter
-                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${ProjectName}/${EnvironmentName}/*'
+                Resource: 
+                  - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${ProjectName}/${EnvironmentName}/*'
+                  - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${ProjectName}/${EnvironmentName}/aws/*'
 
   # Task Role
   TaskRole:
