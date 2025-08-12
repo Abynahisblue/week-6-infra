@@ -64,6 +64,13 @@ Resources:
                 Fn::ImportValue: !Sub '${ProjectName}-${EnvironmentName}-DatabasePort'
             - Name: DB_NAME
               Value: 'product-management'
+            - Name: SPRING_DATASOURCE_URL
+              Value: !Sub 
+                - 'jdbc:postgresql://${DBEndpoint}:${DBPort}/product-management'
+                - DBEndpoint: 
+                    Fn::ImportValue: !Sub '${ProjectName}-${EnvironmentName}-DatabaseEndpoint'
+                  DBPort: 
+                    Fn::ImportValue: !Sub '${ProjectName}-${EnvironmentName}-DatabasePort'
             - Name: S3_BUCKET
               Value: 
                 Fn::ImportValue: !Sub '${ProjectName}-${EnvironmentName}-ImageBucketName'
@@ -73,6 +80,10 @@ Resources:
             - Name: DB_USERNAME
               ValueFrom: !Sub '/${ProjectName}/${EnvironmentName}/db/username'
             - Name: DB_PASSWORD
+              ValueFrom: !Sub '/${ProjectName}/${EnvironmentName}/db/password'
+            - Name: SPRING_DATASOURCE_USERNAME
+              ValueFrom: !Sub '/${ProjectName}/${EnvironmentName}/db/username'
+            - Name: SPRING_DATASOURCE_PASSWORD
               ValueFrom: !Sub '/${ProjectName}/${EnvironmentName}/db/password'
             - Name: AWS_ACCESS_KEY_ID
               ValueFrom: !Sub '/${ProjectName}/${EnvironmentName}/aws/access-key-id'
