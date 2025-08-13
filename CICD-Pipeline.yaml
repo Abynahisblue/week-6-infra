@@ -15,7 +15,7 @@ Parameters:
   DeploymentBucket:
     Type: String
     Description: 'S3 bucket containing deployment artifacts'
-    Default: 'your-deployment-bucket'
+    Default: !Sub '${ProjectName}-${EnvironmentName}-deployment-${AWS::AccountId}'
 
   DeploymentKey:
     Type: String
@@ -120,8 +120,8 @@ Resources:
                 Resource:
                   - !Sub 'arn:aws:s3:::${CodePipelineArtifactStore}'
                   - !Sub 'arn:aws:s3:::${CodePipelineArtifactStore}/*'
-                  - !Sub 'arn:aws:s3:::${DeploymentBucket}'
-                  - !Sub 'arn:aws:s3:::${DeploymentBucket}/*'
+                  - !Sub 'arn:aws:s3:::${DeploymentArtifactStore}'
+                  - !Sub 'arn:aws:s3:::${DeploymentArtifactStore}/*'
               - Effect: Allow
                 Action:
                   - codedeploy:CreateDeployment
@@ -181,7 +181,7 @@ Resources:
                 Provider: S3
                 Version: '1'
               Configuration:
-                S3Bucket: !Ref DeploymentBucket
+                S3Bucket: !Ref DeploymentArtifactStore
                 S3ObjectKey: !Ref DeploymentKey
               OutputArtifacts:
                 - Name: S3Output
@@ -200,8 +200,9 @@ Resources:
                 TaskDefinitionTemplatePath: taskdef.json
                 AppSpecTemplateArtifact: S3Output
                 AppSpecTemplatePath: appspec.yaml
-                Image1ContainerName: productsapp-prod
+                Image1ContainerName: productsapp-container
                 Image1ArtifactName: ECROutput
+              RoleArn: !GetAtt CodeDeployServiceRole.Arn
               InputArtifacts:
                 - Name: ECROutput
                 - Name: S3Output
