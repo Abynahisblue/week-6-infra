@@ -71,6 +71,17 @@ Resources:
                     Fn::ImportValue: !Sub '${ProjectName}-${EnvironmentName}-DatabaseEndpoint'
                   DBPort: 
                     Fn::ImportValue: !Sub '${ProjectName}-${EnvironmentName}-DatabasePort'
+            - Name: JAKARTA_PERSISTENCE_JDBC_URL
+              Value: !Sub 
+                - 'jdbc:postgresql://${DBEndpoint}:${DBPort}/product-management'
+                - DBEndpoint: 
+                    Fn::ImportValue: !Sub '${ProjectName}-${EnvironmentName}-DatabaseEndpoint'
+                  DBPort: 
+                    Fn::ImportValue: !Sub '${ProjectName}-${EnvironmentName}-DatabasePort'
+            - Name: HIBERNATE_DIALECT
+              Value: 'org.hibernate.dialect.PostgreSQLDialect'
+            - Name: SPRING_JPA_DATABASE_PLATFORM
+              Value: 'org.hibernate.dialect.PostgreSQLDialect'
             - Name: S3_BUCKET
               Value: 
                 Fn::ImportValue: !Sub '${ProjectName}-${EnvironmentName}-ImageBucketName'
