@@ -78,10 +78,18 @@ Resources:
                     Fn::ImportValue: !Sub '${ProjectName}-${EnvironmentName}-DatabaseEndpoint'
                   DBPort: 
                     Fn::ImportValue: !Sub '${ProjectName}-${EnvironmentName}-DatabasePort'
-            - Name: HIBERNATE_DIALECT
-              Value: 'org.hibernate.dialect.PostgreSQLDialect'
-            - Name: SPRING_JPA_DATABASE_PLATFORM
-              Value: 'org.hibernate.dialect.PostgreSQLDialect'
+            - Name: SPRING_DATASOURCE_DRIVER_CLASS_NAME
+              Value: 'org.postgresql.Driver'
+            - Name: SPRING_JPA_HIBERNATE_DDL_AUTO
+              Value: 'update'
+            - Name: SPRING_DATASOURCE_HIKARI_CONNECTION_TIMEOUT
+              Value: '30000'
+            - Name: SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE
+              Value: '5'
+            - Name: LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_JDBC
+              Value: 'DEBUG'
+            - Name: LOGGING_LEVEL_COM_ZAXXER_HIKARI
+              Value: 'DEBUG'
             - Name: S3_BUCKET
               Value: 
                 Fn::ImportValue: !Sub '${ProjectName}-${EnvironmentName}-ImageBucketName'
