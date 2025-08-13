@@ -12,11 +12,6 @@ Parameters:
     Default: 'prod'
     Description: 'Environment name'
 
-  DeploymentBucket:
-    Type: String
-    Description: 'S3 bucket containing deployment artifacts'
-    Default: !Sub '${ProjectName}-${EnvironmentName}-deployment-${AWS::AccountId}'
-
   DeploymentKey:
     Type: String
     Description: 'S3 key for deployment zip file'
@@ -88,10 +83,27 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                  - ecs:*
-                  - elasticloadbalancing:*
+                  - ecs:DescribeServices
+                  - ecs:UpdateService
+                  - ecs:RegisterTaskDefinition
+                  - ecs:DeregisterTaskDefinition
+                  - ecs:ListTasks
+                  - ecs:DescribeTasks
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - elasticloadbalancing:DescribeTargetGroups
+                  - elasticloadbalancing:DescribeListeners
+                  - elasticloadbalancing:ModifyListener
+                  - elasticloadbalancing:DescribeRules
+                  - elasticloadbalancing:ModifyRule
+                Resource: "*"
+              - Effect: Allow
+                Action:
                   - iam:PassRole
-                Resource: '*'
+                Resource:
+                  - !GetAtt TaskExecutionRole.Arn
+                  - !GetAtt TaskRole.Arn
 
   # CodePipeline Service Role
   CodePipelineServiceRole:
@@ -120,8 +132,6 @@ Resources:
                 Resource:
                   - !Sub 'arn:aws:s3:::${CodePipelineArtifactStore}'
                   - !Sub 'arn:aws:s3:::${CodePipelineArtifactStore}/*'
-                  - !Sub 'arn:aws:s3:::${DeploymentArtifactStore}'
-                  - !Sub 'arn:aws:s3:::${DeploymentArtifactStore}/*'
               - Effect: Allow
                 Action:
                   - codedeploy:CreateDeployment
@@ -138,7 +148,7 @@ Resources:
                   - ecr:GetDownloadUrlForLayer
                 Resource: !Sub 'arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/${ECRRepositoryName}'
 
-  # S3 Bucket for CodePipeline Artifacts
+  # S3 Bucket for CodePipeline and Deployment Artifacts
   CodePipelineArtifactStore:
     Type: AWS::S3::Bucket
     Properties:
@@ -181,7 +191,7 @@ Resources:
                 Provider: S3
                 Version: '1'
               Configuration:
-                S3Bucket: !Ref DeploymentArtifactStore
+                S3Bucket: !Ref CodePipelineArtifactStore
                 S3ObjectKey: !Ref DeploymentKey
               OutputArtifacts:
                 - Name: S3Output
