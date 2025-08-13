@@ -142,7 +142,7 @@ Resources:
   TargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
-      Name: !Sub '${ProjectName}-${EnvironmentName}-tg'
+      Name: 'prodapp-blue-tg'
       Port: 8082
       Protocol: HTTP
       VpcId: 
@@ -159,7 +159,7 @@ Resources:
   TargetGroup2:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
-      Name: !Sub '${ProjectName}-${EnvironmentName}-tg2'
+      Name: 'prodapp-green-tg'
       Port: 8082
       Protocol: HTTP
       VpcId: 
