@@ -56,9 +56,9 @@ Resources:
                 - Fn::ImportValue: !Sub '${ProjectName}-${EnvironmentName}-ALBListenerArn'
             TargetGroups:
               - Name: 
-                  Fn::ImportValue: !Sub '${ProjectName}-${EnvironmentName}-TargetGroup1Name'
+                  Fn::ImportValue: !Sub '${ProjectName}-${EnvironmentName}-TargetGroup1Arn'
               - Name: 
-                  Fn::ImportValue: !Sub '${ProjectName}-${EnvironmentName}-TargetGroup2Name'
+                  Fn::ImportValue: !Sub '${ProjectName}-${EnvironmentName}-TargetGroup2Arn'
       ECSServices:
         - ServiceName: !Sub '${ProjectName}-${EnvironmentName}-service'
           ClusterName: !Sub '${ProjectName}-${EnvironmentName}-cluster'
