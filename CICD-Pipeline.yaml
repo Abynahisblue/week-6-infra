@@ -102,8 +102,8 @@ Resources:
                 Action:
                   - iam:PassRole
                 Resource:
-                  - !GetAtt TaskExecutionRole.Arn
-                  - !GetAtt TaskRole.Arn
+                  - Fn::ImportValue: !Sub '${ProjectName}-${EnvironmentName}-TaskExecutionRoleArn'
+                  - Fn::ImportValue: !Sub '${ProjectName}-${EnvironmentName}-TaskRoleArn'
 
   # CodePipeline Service Role
   CodePipelineServiceRole:
@@ -212,7 +212,6 @@ Resources:
                 AppSpecTemplatePath: appspec.yaml
                 Image1ContainerName: productsapp-container
                 Image1ArtifactName: ECROutput
-              RoleArn: !GetAtt CodeDeployServiceRole.Arn
               InputArtifacts:
                 - Name: ECROutput
                 - Name: S3Output
