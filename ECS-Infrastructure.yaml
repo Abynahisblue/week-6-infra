@@ -325,6 +325,18 @@ Outputs:
     Export:
       Name: !Sub '${ProjectName}-${EnvironmentName}-TargetGroup2Name'
 
+  TargetGroup1Arn:
+    Description: 'Target Group 1 ARN (Blue)'
+    Value: !Ref TargetGroup
+    Export:
+      Name: !Sub '${ProjectName}-${EnvironmentName}-TargetGroup1Arn'
+
+  TargetGroup2Arn:
+    Description: 'Target Group 2 ARN (Green)'
+    Value: !Ref TargetGroup2
+    Export:
+      Name: !Sub '${ProjectName}-${EnvironmentName}-TargetGroup2Arn'
+
   TaskExecutionRoleArn:
     Description: 'Task Execution Role ARN'
     Value: !GetAtt TaskExecutionRole.Arn
