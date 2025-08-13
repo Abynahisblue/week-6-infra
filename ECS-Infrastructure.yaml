@@ -86,6 +86,10 @@ Resources:
               Value: '30000'
             - Name: SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE
               Value: '5'
+            - Name: SPRING_JPA_PROPERTIES_HIBERNATE_TEMP_USE_JDBC_METADATA_DEFAULTS
+              Value: 'false'
+            - Name: SPRING_JPA_PROPERTIES_HIBERNATE_JDBC_LOB_NON_CONTEXTUAL_CREATION
+              Value: 'true'
             - Name: LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_JDBC
               Value: 'DEBUG'
             - Name: LOGGING_LEVEL_COM_ZAXXER_HIKARI
