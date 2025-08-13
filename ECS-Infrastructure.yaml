@@ -63,17 +63,17 @@ Resources:
               Value: 
                 Fn::ImportValue: !Sub '${ProjectName}-${EnvironmentName}-DatabasePort'
             - Name: DB_NAME
-              Value: 'product-management'
+              Value: 'postgres'
             - Name: SPRING_DATASOURCE_URL
               Value: !Sub 
-                - 'jdbc:postgresql://${DBEndpoint}:${DBPort}/product-management'
+                - 'jdbc:postgresql://${DBEndpoint}:${DBPort}/postgres'
                 - DBEndpoint: 
                     Fn::ImportValue: !Sub '${ProjectName}-${EnvironmentName}-DatabaseEndpoint'
                   DBPort: 
                     Fn::ImportValue: !Sub '${ProjectName}-${EnvironmentName}-DatabasePort'
             - Name: JAKARTA_PERSISTENCE_JDBC_URL
               Value: !Sub 
-                - 'jdbc:postgresql://${DBEndpoint}:${DBPort}/product-management'
+                - 'jdbc:postgresql://${DBEndpoint}:${DBPort}/postgres'
                 - DBEndpoint: 
                     Fn::ImportValue: !Sub '${ProjectName}-${EnvironmentName}-DatabaseEndpoint'
                   DBPort: 
