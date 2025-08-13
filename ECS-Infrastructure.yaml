@@ -324,3 +324,15 @@ Outputs:
     Value: !Ref TargetGroup2
     Export:
       Name: !Sub '${ProjectName}-${EnvironmentName}-TargetGroup2Name'
+
+  TaskExecutionRoleArn:
+    Description: 'Task Execution Role ARN'
+    Value: !GetAtt TaskExecutionRole.Arn
+    Export:
+      Name: !Sub '${ProjectName}-${EnvironmentName}-TaskExecutionRoleArn'
+
+  TaskRoleArn:
+    Description: 'Task Role ARN'
+    Value: !GetAtt TaskRole.Arn
+    Export:
+      Name: !Sub '${ProjectName}-${EnvironmentName}-TaskRoleArn'
