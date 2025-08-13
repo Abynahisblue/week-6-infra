@@ -80,6 +80,8 @@ Resources:
                     Fn::ImportValue: !Sub '${ProjectName}-${EnvironmentName}-DatabasePort'
             - Name: SPRING_DATASOURCE_DRIVER_CLASS_NAME
               Value: 'org.postgresql.Driver'
+            - Name: SERVER_PORT
+              Value: '8082'
             - Name: SPRING_JPA_HIBERNATE_DDL_AUTO
               Value: 'update'
             - Name: SPRING_DATASOURCE_HIKARI_CONNECTION_TIMEOUT
@@ -90,10 +92,8 @@ Resources:
               Value: 'false'
             - Name: SPRING_JPA_PROPERTIES_HIBERNATE_JDBC_LOB_NON_CONTEXTUAL_CREATION
               Value: 'true'
-            - Name: LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_JDBC
-              Value: 'DEBUG'
-            - Name: LOGGING_LEVEL_COM_ZAXXER_HIKARI
-              Value: 'DEBUG'
+            - Name: SPRING_PROFILES_ACTIVE
+              Value: 'prod'
             - Name: S3_BUCKET
               Value: 
                 Fn::ImportValue: !Sub '${ProjectName}-${EnvironmentName}-ImageBucketName'
